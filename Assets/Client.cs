@@ -8,6 +8,8 @@ using EventArgs = System.EventArgs;
 public class Client
 {
     WebSocket client;
+    public static bool clientCanPlay;
+    public static bool clientTurn;
 
     public void init()
     {
@@ -25,6 +27,10 @@ public class Client
 
     private void onOpen(object sender, EventArgs e)
     {
+        NetData packetStart = new NetData() { dataType = NetType.StartTheGame };
+        send(packetStart);
+        NetData packet = new NetData() { dataType = NetType.ReadyToPlay };
+        send(packet);
     }
 
     private void onMessage(object sender, MessageEventArgs e)

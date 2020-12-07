@@ -5,6 +5,8 @@ using UnityEngine;
 public class Game : MonoBehaviour
 {
     public static Game instance;
+    public GameObject player1Ball;
+    public GameObject player2Ball;
 
     public int numberToGuess;
 
@@ -33,6 +35,9 @@ public class Game : MonoBehaviour
 
     void Update()
     {
+        // TODO add can play switching to both host and client
+        
+        // client logic
         if (!Session.instance.isKing)
         {
             for (int i = (int)KeyCode.Alpha1; i <= (int)KeyCode.Alpha9; i++)
@@ -42,33 +47,82 @@ public class Game : MonoBehaviour
                 {
                     var realNumber = i - KeyCode.Alpha0;
                     //Check the number;
-                    var packet = new NetData() { dataType = NetType.NumberGuess, data = new byte[] { (byte)realNumber } };
+                    var packet = new NetData() { dataType = NetType.ClientMove, data = new byte[] { (byte)realNumber } };
                     Session.instance.sending.Add(packet);
+                    Debug.Log("ClientMove");
+
+                   Instantiate(player2Ball, new Vector3((int)realNumber - 1f, 10f, 0f), Quaternion.identity);
+           // Debug.Log("INSTANTIATING blue");
+
+                }
+            }
+        }
+        // host logic
+        else
+        {
+            for (int i = (int)KeyCode.Alpha1; i <= (int)KeyCode.Alpha9; i++)
+            {
+                var keycode = (KeyCode)i;
+                if (Input.GetKeyDown(keycode))
+                {
+                    var realNumber = i - KeyCode.Alpha0;
+                    //Check the number;
+                    var packet = new NetData() { dataType = NetType.HostMove, data = new byte[] { (byte)realNumber } };
+                    Session.instance.sending.Add(packet);
+                    Debug.Log("HostMove");
+                   // Instantiate(player1Ball, new Vector3((int)realNumber - 1f, 10f, 0f), Quaternion.identity);
+
                 }
             }
         }
     }
 
-    public void clientNumberGuess(int number)
+    //public void clientNumberGuess(int number)
+    //{
+    //    //if (Session.instance.isKing)
+    //    //{
+    //    //    if (number == numberToGuess)
+    //    //    {
+    //    //        var packet = new NetData() { dataType = NetType.CorrectGuess };
+    //    //        Session.instance.sending.Add(packet);
+    //    //    }
+    //    //    else if (number > numberToGuess)
+    //    //    {
+    //    //        var packet = new NetData() { dataType = NetType.GoLower };
+    //    //        Session.instance.sending.Add(packet);
+    //    //    }
+    //    //    else
+    //    //    {
+    //    //        var packet = new NetData() { dataType = NetType.GoBigger };
+    //    //        Session.instance.sending.Add(packet);
+    //    //    }
+    //    //}
+
+        
+    //    //if (Session.instance.isKing)
+    //    //{
+    //    //    Debug.Log("INSTANTIATING as client");
+    //    //    Instantiate(player2Ball, new Vector3(number - 1f, 10f, 0f), Quaternion.identity);
+    //    //    //var packet = new NetData() { dataType = NetType.NumberGuess };
+    //    //    //Session.instance.sending.Add(packet);
+            
+    //    //}
+    //    //else
+    //    //{
+    //    //    Instantiate(player1Ball, new Vector3(number - 1f, 10f, 0f), Quaternion.identity);
+    //    //    //var packet = new NetData() { dataType = NetType.NumberGuess };
+    //    //    //Session.instance.sending.Add(packet);
+    //    //}
+    //}
+
+    public void HostMove(int number)
     {
-        if (Session.instance.isKing)
-        {
-            if (number == numberToGuess)
-            {
-                var packet = new NetData() { dataType = NetType.CorrectGuess };
-                Session.instance.sending.Add(packet);
-            }
-            else if (number > numberToGuess)
-            {
-                var packet = new NetData() { dataType = NetType.GoLower };
-                Session.instance.sending.Add(packet);
-            }
-            else
-            {
-                var packet = new NetData() { dataType = NetType.GoBigger };
-                Session.instance.sending.Add(packet);
-            }
-        }
+        Instantiate(player1Ball, new Vector3(number - 1f, 10f, 0f), Quaternion.identity);
+    }
+
+    public void ClientMove(int number)
+    {
+        Instantiate(player2Ball, new Vector3(number - 1f, 10f, 0f), Quaternion.identity);
     }
 
     public void hostGuessResponse(NetData packet)

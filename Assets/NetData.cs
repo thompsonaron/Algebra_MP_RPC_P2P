@@ -25,7 +25,12 @@ public enum NetType
 	NumberGuess,
 	CorrectGuess,
 	GoBigger,
-	GoLower
+	GoLower,
+	MoveComplete
+
+		,ReadyToPlay,
+    ClientMove,
+    HostMove
 }
 
 

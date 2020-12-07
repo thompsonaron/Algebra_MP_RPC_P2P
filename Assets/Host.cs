@@ -8,6 +8,8 @@ public class Host
 {
 	WebSocketServer server;
 	public static string opponentId;
+	public static bool hostCanPlay;
+	public static bool hostTurn;
 
 	public void init()
 	{
