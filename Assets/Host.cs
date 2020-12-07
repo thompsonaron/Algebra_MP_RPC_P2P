@@ -35,7 +35,7 @@ public class Host
 		{
 			Host.opponentId = ID;
 			NetData packet = new NetData() { dataType = NetType.StartTheGame };
-			send(packet);
+            send(packet);
 
 			base.OnOpen();
 		}
@@ -50,7 +50,7 @@ public class Host
 		public void send(NetData packet)
 		{
 			Send(Serializator.serialize(packet));
-			Session.instance.receiving.Add(packet);
+			//Session.instance.receiving.Add(packet);
 		}
 	}
 }

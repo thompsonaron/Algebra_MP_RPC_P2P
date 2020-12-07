@@ -35,7 +35,7 @@ public class Client
 
     private void onMessage(object sender, MessageEventArgs e)
     {
-        NetData packet = Serializator.deserialize<NetData>(e.RawData);
+        var packet = Serializator.deserialize<NetData>(e.RawData);
         Session.instance.receiving.Add(packet);
     }
 

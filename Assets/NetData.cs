@@ -9,26 +9,11 @@ public class NetData
 	public byte[] data;
 }
 
-[Serializable]
-public class NetVector3
-{
-	public float x;
-	public float y;
-	public float z;
-}
-
 public enum NetType
 {
 	StartTheGame,
-	Vector3,
-	RandomNumber,
-	NumberGuess,
-	CorrectGuess,
-	GoBigger,
-	GoLower,
-	MoveComplete
-
-		,ReadyToPlay,
+	MoveComplete,
+	ReadyToPlay,
     ClientMove,
     HostMove
 }

@@ -15,6 +15,8 @@ public class Session : MonoBehaviour
 		
 	public static Session instance;
 
+	public int[,] field;
+
 	public void Awake()
 	{
 		// "singleton"
@@ -29,7 +31,19 @@ public class Session : MonoBehaviour
 		}
 	}
 
-	public void Update()
+    public void Start()
+    {
+        field = new int[9, 9];
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+				field[i, j] = 0;
+            }
+        }
+    }
+
+    public void Update()
 	{
 		// processing logic
 		lock (receiving)
@@ -45,21 +59,6 @@ public class Session : MonoBehaviour
 				{
 					Debug.Log("READY TO PLAY");
 				}
-				//else if(packet.dataType == NetType.Vector3)
-				//{
-				//	var vec3 = Serializator.deserialize<NetVector3>(packet.data);
-				//	Debug.Log(vec3.x + " " + vec3.y + " " + vec3.z);
-				//}
-				//else if(packet.dataType == NetType.RandomNumber)
-				//{
-				//	Game.instance.numberToGuess = packet.data[0];
-				//	Debug.Log("sessions: " + Game.instance.numberToGuess);
-				//}
-    //            //else if(packet.dataType == NetType.NumberGuess)
-    //            //{
-    //            //	Game.instance.clientNumberGuess(packet.data[0]);
-    //            //	Debug.Log("Num pressed is " + packet.data[0]); 
-    //            //}
                 else if (packet.dataType == NetType.ClientMove)
                 {
 					Game.instance.ClientMove(packet.data[0]);
@@ -68,32 +67,33 @@ public class Session : MonoBehaviour
 				{
 					Game.instance.HostMove(packet.data[0]);
 				}
-				else if(packet.dataType == NetType.GoBigger || packet.dataType == NetType.GoLower || packet.dataType == NetType.CorrectGuess)
-				{
-					Game.instance.hostGuessResponse(packet);
-				}
 
 			}
 			receiving.Clear();
 		}
-
-		// sending packets "online"
-		foreach (var packet in sending)
-		{
-			if(isKing)
+        lock (sending)
+        {
+			// sending packets "online"
+			foreach (var packet in sending)
 			{
-				host.send(packet);
-			}
-			else
-			{
-				client.send(packet);
+				if (isKing)
+				{
+					host.send(packet);
+				}
+				else
+				{
+					client.send(packet);
+				}
 			}
 		}
+		
 		sending.Clear();
 	}
 
+    
 
-	// initializing host
+
+    // initializing host
     public void startHost()
 	{
 		isKing = true;

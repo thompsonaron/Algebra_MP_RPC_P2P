@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,30 +14,30 @@ public class Game : MonoBehaviour
     void Start()
     {
         instance = this;
-        if (!Session.instance.isKing)
-        {
-            //PEASANT CODE
-            var packet = new NetData();
-            packet.dataType = NetType.Vector3;
-            packet.data = Serializator.serialize(new NetVector3() { x = 1, y = 2, z = 3 });
-            Session.instance.sending.Add(packet);
-        }
-        else
-        {
-            //KING CODE
-            //Generate the number
-            //Sends the number to peasant
+        //if (!Session.instance.isKing)
+        //{
+        //    //PEASANT CODE
+        //    //var packet = new NetData();
+        //    //packet.dataType = NetType.Vector3;
+        //    //packet.data = Serializator.serialize(new NetVector3() { x = 1, y = 2, z = 3 });
+        //    //Session.instance.sending.Add(packet);
+        //}
+        //else
+        //{
+        //    //KING CODE
+        //    //Generate the number
+        //    //Sends the number to peasant
 
-            byte generatedNumber = (byte)Random.Range(1, 10); //1....9
-            var packet = new NetData() { dataType = NetType.RandomNumber, data = new byte[] { generatedNumber } };
-            Session.instance.sending.Add(packet);
-        }
+        //    //byte generatedNumber = (byte)Random.Range(1, 10); //1....9
+        //    //var packet = new NetData() { dataType = NetType.RandomNumber, data = new byte[] { generatedNumber } };
+        //    //Session.instance.sending.Add(packet);
+        //}
     }
 
     void Update()
     {
         // TODO add can play switching to both host and client
-        
+
         // client logic
         if (!Session.instance.isKing)
         {
@@ -45,15 +46,17 @@ public class Game : MonoBehaviour
                 var keycode = (KeyCode)i;
                 if (Input.GetKeyDown(keycode))
                 {
-                    var realNumber = i - KeyCode.Alpha0;
+                    // -1 is added since array and positions start at 0
+                    var realNumber = i - KeyCode.Alpha0 - 1;
+                    //if (TryMove((int)realNumber))
+                    //{
+
+                    //}
                     //Check the number;
                     var packet = new NetData() { dataType = NetType.ClientMove, data = new byte[] { (byte)realNumber } };
                     Session.instance.sending.Add(packet);
                     Debug.Log("ClientMove");
-
-                   Instantiate(player2Ball, new Vector3((int)realNumber - 1f, 10f, 0f), Quaternion.identity);
-           // Debug.Log("INSTANTIATING blue");
-
+                    Instantiate(player2Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
                 }
             }
         }
@@ -65,86 +68,136 @@ public class Game : MonoBehaviour
                 var keycode = (KeyCode)i;
                 if (Input.GetKeyDown(keycode))
                 {
-                    var realNumber = i - KeyCode.Alpha0;
+                    // -1 is added since array and positions start at 0
+                    var realNumber = i - KeyCode.Alpha0 - 1;
+
+                    //if (TryMove((int)realNumber))
+                    //{
+
+                    //}
+
                     //Check the number;
                     var packet = new NetData() { dataType = NetType.HostMove, data = new byte[] { (byte)realNumber } };
                     Session.instance.sending.Add(packet);
                     Debug.Log("HostMove");
-                   // Instantiate(player1Ball, new Vector3((int)realNumber - 1f, 10f, 0f), Quaternion.identity);
-
+                    Instantiate(player1Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
                 }
             }
         }
     }
 
-    //public void clientNumberGuess(int number)
-    //{
-    //    //if (Session.instance.isKing)
-    //    //{
-    //    //    if (number == numberToGuess)
-    //    //    {
-    //    //        var packet = new NetData() { dataType = NetType.CorrectGuess };
-    //    //        Session.instance.sending.Add(packet);
-    //    //    }
-    //    //    else if (number > numberToGuess)
-    //    //    {
-    //    //        var packet = new NetData() { dataType = NetType.GoLower };
-    //    //        Session.instance.sending.Add(packet);
-    //    //    }
-    //    //    else
-    //    //    {
-    //    //        var packet = new NetData() { dataType = NetType.GoBigger };
-    //    //        Session.instance.sending.Add(packet);
-    //    //    }
-    //    //}
-
-        
-    //    //if (Session.instance.isKing)
-    //    //{
-    //    //    Debug.Log("INSTANTIATING as client");
-    //    //    Instantiate(player2Ball, new Vector3(number - 1f, 10f, 0f), Quaternion.identity);
-    //    //    //var packet = new NetData() { dataType = NetType.NumberGuess };
-    //    //    //Session.instance.sending.Add(packet);
-            
-    //    //}
-    //    //else
-    //    //{
-    //    //    Instantiate(player1Ball, new Vector3(number - 1f, 10f, 0f), Quaternion.identity);
-    //    //    //var packet = new NetData() { dataType = NetType.NumberGuess };
-    //    //    //Session.instance.sending.Add(packet);
-    //    //}
-    //}
-
-    public void HostMove(int number)
+    private bool TryMove(int realNumber)
     {
-        Instantiate(player1Ball, new Vector3(number - 1f, 10f, 0f), Quaternion.identity);
+        if (Session.instance.field[8, realNumber] == 0)
+        {
+            return true;
+        }
+        return false;
     }
 
-    public void ClientMove(int number)
+    public void HostMove(int position)
     {
-        Instantiate(player2Ball, new Vector3(number - 1f, 10f, 0f), Quaternion.identity);
+        Instantiate(player1Ball, new Vector3(position, 10f, 0f), Quaternion.identity);
+        //UpdateField(position, 1);
+    }
+
+    public void ClientMove(int position)
+    {
+        Instantiate(player2Ball, new Vector3(position, 10f, 0f), Quaternion.identity);
+        //UpdateField(position, 2);
+    }
+
+    private void UpdateField(int number, int codeNum)
+    {
+        int row = 0;
+        int column = number;
+
+        for (int i = row; i < 9; row++)
+        {
+            if (Session.instance.field[row, column] == 0)
+            {
+                Session.instance.field[row, column] = codeNum;
+                CheckForWin(row, column, codeNum);
+            }
+        }
+
+    }
+
+    private void CheckForWin(int startingRowPos, int startingColumnPos, int codeNum)
+    {
+        // check UP
+        if (startingRowPos + 2 <= 8)
+        {
+            if (Session.instance.field[startingRowPos + 1, startingColumnPos] == codeNum && Session.instance.field[startingRowPos + 2, startingColumnPos] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check DOWN
+        if (startingRowPos - 2 >= 0)
+        {
+            if (Session.instance.field[startingRowPos - 1, startingColumnPos] == codeNum && Session.instance.field[startingRowPos - 2, startingColumnPos] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check LEFT
+        if (startingColumnPos -2 >= 0)
+        {
+            if (Session.instance.field[startingRowPos, startingColumnPos-1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos-2] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check RIGHT
+        if (startingColumnPos + 2 <= 8)
+        {
+            if (Session.instance.field[startingRowPos, startingColumnPos+1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos+2] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check LEFT UPPPER 
+        if (startingColumnPos - 2 >= 0 && startingRowPos + 2 <= 8)
+        {
+            if (Session.instance.field[startingRowPos +1, startingColumnPos-1] == codeNum && Session.instance.field[startingRowPos+2, startingColumnPos-2] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check RIGHT LOWER
+        if (startingColumnPos + 2 <= 8 && startingRowPos - 2 >= 0)
+        {
+            if (Session.instance.field[startingRowPos - 1, startingColumnPos + 1] == codeNum && Session.instance.field[startingRowPos - 2, startingColumnPos + 2] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check LEFT LOWER
+        if (startingColumnPos -2 >= 0 && startingRowPos -2 >= 0)
+        {
+            if (Session.instance.field[startingRowPos - 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos - 2, startingColumnPos - 2] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check RIGHT UPPER
+        if (startingColumnPos + 2 <= 8 && startingRowPos + 2 <= 8)
+        {
+            if (Session.instance.field[startingRowPos + 1, startingColumnPos + 1] == codeNum && Session.instance.field[startingRowPos + 2, startingColumnPos + 2] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
     }
 
     public void hostGuessResponse(NetData packet)
     {
-        if (!Session.instance.isKing)
-        {
-            if (packet.dataType == NetType.GoBigger)
-            {
-                Debug.Log("I have to guess a bigger number!");
-            }
-            else if (packet.dataType == NetType.GoLower)
-            {
-                Debug.Log("I have to guess a lower number!");
-            }
-        }
-        if (packet.dataType == NetType.CorrectGuess)
-        {
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+        UnityEditor.EditorApplication.isPlaying = false;
 #else
             Application.Quit();
 #endif
-        }
+
     }
 }
