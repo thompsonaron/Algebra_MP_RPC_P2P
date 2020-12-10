@@ -56,7 +56,8 @@ public class Game : MonoBehaviour
                         Session.instance.sending.Add(packet);
                         Debug.Log("ClientMove");
                         Instantiate(player2Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
-                        UpdateField((int)realNumber, 2);
+                        int updatedRowHeight = UpdateField((int)realNumber, 2);
+                        CheckForWin(updatedRowHeight,(int)realNumber, 2);
                     }
                 }
             }
@@ -80,7 +81,8 @@ public class Game : MonoBehaviour
                         Debug.Log("HostMove");
                         Instantiate(player1Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
 
-                        UpdateField((int)realNumber, 1);
+                        int updatedRowHeight = UpdateField((int)realNumber, 1);
+                        CheckForWin(updatedRowHeight, (int)realNumber, 1);
                     }
                 }
             }
@@ -108,7 +110,7 @@ public class Game : MonoBehaviour
         //UpdateField(position, 2);
     }
 
-    public void UpdateField(int column, int codeNum)
+    public int UpdateField(int column, int codeNum)
     {
         //int row = 0;
 
@@ -123,18 +125,19 @@ public class Game : MonoBehaviour
                 Debug.Log(Session.instance.field[2, 0] + "" + Session.instance.field[2, 1] + "" + Session.instance.field[2, 2] + "" + Session.instance.field[2, 3] + "" + Session.instance.field[2, 4] + "" + Session.instance.field[2, 5] + "" + Session.instance.field[2, 6] + "" + Session.instance.field[2, 7] + "" + Session.instance.field[2, 8]); 
                 Debug.Log(Session.instance.field[1, 0] + "" + Session.instance.field[0, 1] + "" + Session.instance.field[1, 2] + "" + Session.instance.field[1, 3] + "" + Session.instance.field[1, 4] + "" + Session.instance.field[1, 5] + "" + Session.instance.field[1, 6] + "" + Session.instance.field[1, 7] + "" + Session.instance.field[1, 8]);
                 Debug.Log(Session.instance.field[0, 0] + "" + Session.instance.field[0, 1] + "" + Session.instance.field[0, 2] + "" + Session.instance.field[0, 3] + "" + Session.instance.field[0, 4] + "" + Session.instance.field[0, 5] + "" + Session.instance.field[0, 6] + "" + Session.instance.field[0, 7] + "" + Session.instance.field[0, 8]);
-                return;
+                return row;
                 //CheckForWin(row, column, codeNum);
             }
         }
 
-
+        return 0;
 
     }
 
     private void CheckForWin(int startingRowPos, int startingColumnPos, int codeNum)
     {
-        // check UP
+        Debug.Log("Checking for victory");
+        // check UP // TODO probably pointless
         if (startingRowPos + 2 <= 8)
         {
             if (Session.instance.field[startingRowPos + 1, startingColumnPos] == codeNum && Session.instance.field[startingRowPos + 2, startingColumnPos] == codeNum)
@@ -198,6 +201,42 @@ public class Game : MonoBehaviour
                 Debug.Log("Victory");
             }
         }
+
+
+        // SINGLE CHECKS
+        // check LEFT AND RIGHT
+        if (startingColumnPos - 1 >= 0 && startingColumnPos + 1 <= 8)
+        {
+            if (Session.instance.field[startingRowPos, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos + 1] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check UP AND DOWN // TODO probably pointless
+        if (startingRowPos - 1 >= 0 && startingRowPos + 1 <= 8)
+        {
+            if (Session.instance.field[startingRowPos - 1, startingColumnPos] == codeNum && Session.instance.field[startingRowPos + 1, startingColumnPos] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check LEFT SLASH - \
+        if (startingColumnPos >= 1 && startingColumnPos <= 7 && startingRowPos >= 1 && startingRowPos <= 7)
+        {
+            if (Session.instance.field[startingRowPos + 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos - 1, startingColumnPos + 1] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+        // check RIGHT SLASH - /
+        if (startingColumnPos >= 1 && startingColumnPos <= 7 && startingRowPos >= 1 && startingRowPos <= 7)
+        {
+            if (Session.instance.field[startingRowPos - 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos + 1, startingColumnPos + 1] == codeNum)
+            {
+                Debug.Log("Victory");
+            }
+        }
+
     }
 
     public void hostGuessResponse(NetData packet)
