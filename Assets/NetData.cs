@@ -15,7 +15,8 @@ public enum NetType
 	MoveComplete,
 	ReadyToPlay,
     ClientMove,
-    HostMove
+    HostMove,
+	YouLose
 }
 
 

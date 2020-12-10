@@ -74,6 +74,10 @@ public class Session : MonoBehaviour
 					Game.instance.UpdateField(packet.data[0], 1);
 					canPlay = true;
 				}
+                else if (packet.dataType == NetType.HostMove)
+				{
+					// TODO activate you lose UI and disable input
+                }
 
 			}
 			receiving.Clear();
@@ -101,11 +105,6 @@ public class Session : MonoBehaviour
 		sending.Clear();
 	}
 
-    
-	public void UpdateField(int column)
-    {
-
-    }
 
     // initializing host
     public void startHost()

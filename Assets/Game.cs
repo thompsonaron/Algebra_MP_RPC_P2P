@@ -57,7 +57,14 @@ public class Game : MonoBehaviour
                         Debug.Log("ClientMove");
                         Instantiate(player2Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
                         int updatedRowHeight = UpdateField((int)realNumber, 2);
-                        CheckForWin(updatedRowHeight,(int)realNumber, 2);
+
+                        if (CheckForWin(updatedRowHeight, (int)realNumber, 2))
+                        {
+                            var packetWin = new NetData() { dataType = NetType.YouLose };
+                            Session.instance.sending.Add(packetWin);
+                            // TODO activate some sort of you win and disable input
+
+                        }
                     }
                 }
             }
@@ -86,7 +93,15 @@ public class Game : MonoBehaviour
                         Instantiate(player1Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
 
                         int updatedRowHeight = UpdateField((int)realNumber, 1);
-                        CheckForWin(updatedRowHeight, (int)realNumber, 1);
+
+
+                        if (CheckForWin(updatedRowHeight, (int)realNumber, 1))
+                        {
+                            var packetWin = new NetData() { dataType = NetType.YouLose };
+                            Session.instance.sending.Add(packetWin);
+                            // TODO activate some sort of you win and disable input
+
+                        }
                     }
                 }
             }
@@ -138,7 +153,7 @@ public class Game : MonoBehaviour
 
     }
 
-    private void CheckForWin(int startingRowPos, int startingColumnPos, int codeNum)
+    private bool CheckForWin(int startingRowPos, int startingColumnPos, int codeNum)
     {
         Debug.Log("Checking for victory");
         // check UP // TODO probably pointless
@@ -147,6 +162,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos + 1, startingColumnPos] == codeNum && Session.instance.field[startingRowPos + 2, startingColumnPos] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check DOWN
@@ -155,6 +171,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos - 1, startingColumnPos] == codeNum && Session.instance.field[startingRowPos - 2, startingColumnPos] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check LEFT
@@ -163,6 +180,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos - 2] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check RIGHT
@@ -171,6 +189,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos, startingColumnPos + 1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos + 2] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check LEFT UPPPER 
@@ -179,6 +198,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos + 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos + 2, startingColumnPos - 2] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check RIGHT LOWER
@@ -187,6 +207,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos - 1, startingColumnPos + 1] == codeNum && Session.instance.field[startingRowPos - 2, startingColumnPos + 2] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check LEFT LOWER
@@ -195,6 +216,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos - 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos - 2, startingColumnPos - 2] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check RIGHT UPPER
@@ -203,6 +225,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos + 1, startingColumnPos + 1] == codeNum && Session.instance.field[startingRowPos + 2, startingColumnPos + 2] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
 
@@ -214,6 +237,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos + 1] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check UP AND DOWN // TODO probably pointless
@@ -222,6 +246,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos - 1, startingColumnPos] == codeNum && Session.instance.field[startingRowPos + 1, startingColumnPos] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check LEFT SLASH - \
@@ -230,6 +255,7 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos + 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos - 1, startingColumnPos + 1] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
         // check RIGHT SLASH - /
@@ -238,9 +264,11 @@ public class Game : MonoBehaviour
             if (Session.instance.field[startingRowPos - 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos + 1, startingColumnPos + 1] == codeNum)
             {
                 Debug.Log("Victory");
+                return true;
             }
         }
 
+        return false;
     }
 
     public void hostGuessResponse(NetData packet)
