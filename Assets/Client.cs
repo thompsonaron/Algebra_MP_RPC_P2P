@@ -18,6 +18,7 @@ public class Client
         client.OnMessage += onMessage;
         client.OnError += onError;
         client.Connect();
+        Session.instance.canPlay = false;
     }
 
     public void send(NetData data)

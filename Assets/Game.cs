@@ -39,7 +39,7 @@ public class Game : MonoBehaviour
         // TODO add can play switching to both host and client
 
         // client logic
-        if (!Session.instance.isKing)
+        if (!Session.instance.isKing && Session.instance.canPlay)
         {
             for (int i = (int)KeyCode.Alpha1; i <= (int)KeyCode.Alpha9; i++)
             {
@@ -65,6 +65,10 @@ public class Game : MonoBehaviour
         // host logic
         else
         {
+            if (!Session.instance.canPlay)
+            {
+                return;
+            }
             for (int i = (int)KeyCode.Alpha1; i <= (int)KeyCode.Alpha9; i++)
             {
                 var keycode = (KeyCode)i;

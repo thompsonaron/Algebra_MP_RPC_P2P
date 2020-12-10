@@ -16,6 +16,7 @@ public class Host
 		server = new WebSocketServer(8080);
 		server.AddWebSocketService<LobbyBehaviour>("/lobby");
 		server.Start();
+		Session.instance.canPlay = true;
 	}
 	
 	public void send(NetData packet)

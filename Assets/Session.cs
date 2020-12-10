@@ -17,6 +17,8 @@ public class Session : MonoBehaviour
 
 	public int[,] field;
 
+	public bool canPlay;
+
 	public void Awake()
 	{
 		// "singleton"
@@ -64,11 +66,13 @@ public class Session : MonoBehaviour
 					Game.instance.ClientMove(packet.data[0]);
 					Game.instance.UpdateField(packet.data[0], 2);
 					//UpdateField((int)packet.data[0]);
+					canPlay = true;
                 }
 				else if (packet.dataType == NetType.HostMove)
 				{
 					Game.instance.HostMove(packet.data[0]);
 					Game.instance.UpdateField(packet.data[0], 1);
+					canPlay = true;
 				}
 
 			}
@@ -79,6 +83,10 @@ public class Session : MonoBehaviour
 			// sending packets "online"
 			foreach (var packet in sending)
 			{
+                if (packet.dataType == NetType.ClientMove || packet.dataType == NetType.HostMove)
+                {
+					canPlay = false;
+                }
 				if (isKing)
 				{
 					host.send(packet);
