@@ -62,10 +62,13 @@ public class Session : MonoBehaviour
                 else if (packet.dataType == NetType.ClientMove)
                 {
 					Game.instance.ClientMove(packet.data[0]);
+					Game.instance.UpdateField(packet.data[0], 2);
+					//UpdateField((int)packet.data[0]);
                 }
 				else if (packet.dataType == NetType.HostMove)
 				{
 					Game.instance.HostMove(packet.data[0]);
+					Game.instance.UpdateField(packet.data[0], 1);
 				}
 
 			}
@@ -91,7 +94,10 @@ public class Session : MonoBehaviour
 	}
 
     
+	public void UpdateField(int column)
+    {
 
+    }
 
     // initializing host
     public void startHost()

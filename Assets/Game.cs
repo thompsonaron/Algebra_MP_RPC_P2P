@@ -48,15 +48,16 @@ public class Game : MonoBehaviour
                 {
                     // -1 is added since array and positions start at 0
                     var realNumber = i - KeyCode.Alpha0 - 1;
-                    //if (TryMove((int)realNumber))
-                    //{
 
-                    //}
-                    //Check the number;
-                    var packet = new NetData() { dataType = NetType.ClientMove, data = new byte[] { (byte)realNumber } };
-                    Session.instance.sending.Add(packet);
-                    Debug.Log("ClientMove");
-                    Instantiate(player2Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
+                    if (TryMove((int)realNumber))
+                    {
+                        //Check the number;
+                        var packet = new NetData() { dataType = NetType.ClientMove, data = new byte[] { (byte)realNumber } };
+                        Session.instance.sending.Add(packet);
+                        Debug.Log("ClientMove");
+                        Instantiate(player2Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
+                        UpdateField((int)realNumber, 2);
+                    }
                 }
             }
         }
@@ -71,16 +72,16 @@ public class Game : MonoBehaviour
                     // -1 is added since array and positions start at 0
                     var realNumber = i - KeyCode.Alpha0 - 1;
 
-                    //if (TryMove((int)realNumber))
-                    //{
+                    if (TryMove((int)realNumber))
+                    {
+                        //Check the number;
+                        var packet = new NetData() { dataType = NetType.HostMove, data = new byte[] { (byte)realNumber } };
+                        Session.instance.sending.Add(packet);
+                        Debug.Log("HostMove");
+                        Instantiate(player1Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
 
-                    //}
-
-                    //Check the number;
-                    var packet = new NetData() { dataType = NetType.HostMove, data = new byte[] { (byte)realNumber } };
-                    Session.instance.sending.Add(packet);
-                    Debug.Log("HostMove");
-                    Instantiate(player1Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
+                        UpdateField((int)realNumber, 1);
+                    }
                 }
             }
         }
@@ -107,19 +108,27 @@ public class Game : MonoBehaviour
         //UpdateField(position, 2);
     }
 
-    private void UpdateField(int number, int codeNum)
+    public void UpdateField(int column, int codeNum)
     {
-        int row = 0;
-        int column = number;
+        //int row = 0;
 
-        for (int i = row; i < 9; row++)
+
+        for (int row = 0; row < 9; row++)
         {
             if (Session.instance.field[row, column] == 0)
             {
                 Session.instance.field[row, column] = codeNum;
-                CheckForWin(row, column, codeNum);
+                Debug.Log(Session.instance.field[4, 0] + "" + Session.instance.field[4, 1] + "" + Session.instance.field[4, 2] + "" + Session.instance.field[4, 3] + "" + Session.instance.field[4, 4] + "" + Session.instance.field[4, 5] + "" + Session.instance.field[4, 6] + "" + Session.instance.field[4, 7] + "" + Session.instance.field[4, 8]); 
+                Debug.Log(Session.instance.field[3, 0] + "" + Session.instance.field[3, 1] + "" + Session.instance.field[3, 2] + "" + Session.instance.field[3, 3] + "" + Session.instance.field[3, 4] + "" + Session.instance.field[3, 5] + "" + Session.instance.field[3, 6] + "" + Session.instance.field[3, 7] + "" + Session.instance.field[3, 8]);
+                Debug.Log(Session.instance.field[2, 0] + "" + Session.instance.field[2, 1] + "" + Session.instance.field[2, 2] + "" + Session.instance.field[2, 3] + "" + Session.instance.field[2, 4] + "" + Session.instance.field[2, 5] + "" + Session.instance.field[2, 6] + "" + Session.instance.field[2, 7] + "" + Session.instance.field[2, 8]); 
+                Debug.Log(Session.instance.field[1, 0] + "" + Session.instance.field[0, 1] + "" + Session.instance.field[1, 2] + "" + Session.instance.field[1, 3] + "" + Session.instance.field[1, 4] + "" + Session.instance.field[1, 5] + "" + Session.instance.field[1, 6] + "" + Session.instance.field[1, 7] + "" + Session.instance.field[1, 8]);
+                Debug.Log(Session.instance.field[0, 0] + "" + Session.instance.field[0, 1] + "" + Session.instance.field[0, 2] + "" + Session.instance.field[0, 3] + "" + Session.instance.field[0, 4] + "" + Session.instance.field[0, 5] + "" + Session.instance.field[0, 6] + "" + Session.instance.field[0, 7] + "" + Session.instance.field[0, 8]);
+                return;
+                //CheckForWin(row, column, codeNum);
             }
         }
+
+
 
     }
 
@@ -142,9 +151,9 @@ public class Game : MonoBehaviour
             }
         }
         // check LEFT
-        if (startingColumnPos -2 >= 0)
+        if (startingColumnPos - 2 >= 0)
         {
-            if (Session.instance.field[startingRowPos, startingColumnPos-1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos-2] == codeNum)
+            if (Session.instance.field[startingRowPos, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos - 2] == codeNum)
             {
                 Debug.Log("Victory");
             }
@@ -152,7 +161,7 @@ public class Game : MonoBehaviour
         // check RIGHT
         if (startingColumnPos + 2 <= 8)
         {
-            if (Session.instance.field[startingRowPos, startingColumnPos+1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos+2] == codeNum)
+            if (Session.instance.field[startingRowPos, startingColumnPos + 1] == codeNum && Session.instance.field[startingRowPos, startingColumnPos + 2] == codeNum)
             {
                 Debug.Log("Victory");
             }
@@ -160,7 +169,7 @@ public class Game : MonoBehaviour
         // check LEFT UPPPER 
         if (startingColumnPos - 2 >= 0 && startingRowPos + 2 <= 8)
         {
-            if (Session.instance.field[startingRowPos +1, startingColumnPos-1] == codeNum && Session.instance.field[startingRowPos+2, startingColumnPos-2] == codeNum)
+            if (Session.instance.field[startingRowPos + 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos + 2, startingColumnPos - 2] == codeNum)
             {
                 Debug.Log("Victory");
             }
@@ -174,7 +183,7 @@ public class Game : MonoBehaviour
             }
         }
         // check LEFT LOWER
-        if (startingColumnPos -2 >= 0 && startingRowPos -2 >= 0)
+        if (startingColumnPos - 2 >= 0 && startingRowPos - 2 >= 0)
         {
             if (Session.instance.field[startingRowPos - 1, startingColumnPos - 1] == codeNum && Session.instance.field[startingRowPos - 2, startingColumnPos - 2] == codeNum)
             {
