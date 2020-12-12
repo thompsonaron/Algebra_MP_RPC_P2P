@@ -68,7 +68,6 @@ public class Session : MonoBehaviour
                 {
 					Game.instance.ClientMove(packet.data[0]);
 					Game.instance.UpdateField(packet.data[0], 2);
-					//UpdateField((int)packet.data[0]);
 					canPlay = true;
                 }
 				else if (packet.dataType == NetType.HostMove)
@@ -79,7 +78,6 @@ public class Session : MonoBehaviour
 				}
                 else if (packet.dataType == NetType.YouLose)
 				{
-					// TODO activate you lose UI and disable input
 					Game.instance.YouLose();
                 }
 
@@ -133,7 +131,6 @@ public class Session : MonoBehaviour
 	// loading game scene
 	void startTheGame()
 	{
-		Debug.Log("start the game");
 		SceneManager.LoadScene("Game");
 	}
 }
