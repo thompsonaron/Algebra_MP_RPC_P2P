@@ -362,6 +362,9 @@ MonoBehaviour:
   receiving: []
   sending: []
   isKing: 0
+  canPlay: 0
+  hostButton: {fileID: 96432309}
+  joinButton: {fileID: 1921134796}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -782,7 +785,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Client
+  m_Text: Join
 --- !u!222 &1849860060
 CanvasRenderer:
   m_ObjectHideFlags: 0

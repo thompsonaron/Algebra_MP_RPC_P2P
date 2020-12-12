@@ -2,14 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
     public static Game instance;
     public GameObject player1Ball;
     public GameObject player2Ball;
+    public Text winLoseText;
 
-    public int numberToGuess;
+ //   public int numberToGuess;
 
     void Start()
     {
@@ -63,7 +65,7 @@ public class Game : MonoBehaviour
                             var packetWin = new NetData() { dataType = NetType.YouLose };
                             Session.instance.sending.Add(packetWin);
                             // TODO activate some sort of you win and disable input
-
+                            YouWin();
                         }
                     }
                 }
@@ -100,12 +102,28 @@ public class Game : MonoBehaviour
                             var packetWin = new NetData() { dataType = NetType.YouLose };
                             Session.instance.sending.Add(packetWin);
                             // TODO activate some sort of you win and disable input
-
+                            YouWin();
                         }
                     }
                 }
             }
         }
+    }
+
+    public void YouWin()
+    {
+        // activate some canvas and disable input
+        Debug.Log("You win");
+        winLoseText.text = "You Win!";
+        Session.instance.canPlay = false;
+    }
+
+    public void YouLose()
+    {
+        // activate some canvas and disable input
+        Debug.Log("You lose");
+        winLoseText.text = "You Lose";
+        Session.instance.canPlay = false;
     }
 
     private bool TryMove(int realNumber)

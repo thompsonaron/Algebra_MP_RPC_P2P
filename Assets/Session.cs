@@ -6,18 +6,21 @@ using UnityEngine.SceneManagement;
 
 public class Session : MonoBehaviour
 {
-	public List<NetData> receiving = new List<NetData>();
-	public List<NetData> sending = new List<NetData>();
+	[HideInInspector] public List<NetData> receiving = new List<NetData>();
+	[HideInInspector] public List<NetData> sending = new List<NetData>();
 
-	public bool isKing;
-	public Client client;
-	public Host host;
-		
-	public static Session instance;
+	[HideInInspector] public bool isKing;
+	[HideInInspector] public Client client;
+	[HideInInspector] public Host host;
 
-	public int[,] field;
+	[HideInInspector] public static Session instance;
 
-	public bool canPlay;
+	[HideInInspector] public int[,] field;
+
+	[HideInInspector] public bool canPlay;
+
+	public GameObject hostButton;
+	public GameObject joinButton;
 
 	public void Awake()
 	{
@@ -74,9 +77,10 @@ public class Session : MonoBehaviour
 					Game.instance.UpdateField(packet.data[0], 1);
 					canPlay = true;
 				}
-                else if (packet.dataType == NetType.HostMove)
+                else if (packet.dataType == NetType.YouLose)
 				{
 					// TODO activate you lose UI and disable input
+					Game.instance.YouLose();
                 }
 
 			}
@@ -112,6 +116,8 @@ public class Session : MonoBehaviour
 		isKing = true;
 		host = new Host();
 		host.init();
+		hostButton.SetActive(false);
+		joinButton.SetActive(false);
 	}
 
 	// initializing client
@@ -120,6 +126,8 @@ public class Session : MonoBehaviour
 		isKing = false;
 		client = new Client();
 		client.init();
+		hostButton.SetActive(false);
+		joinButton.SetActive(false);
 	}
 
 	// loading game scene
