@@ -10,16 +10,24 @@ public class Game : MonoBehaviour
     public GameObject player1Ball;
     public GameObject player2Ball;
     public Text winLoseText;
+    private int internalID;
 
     void Start()
     {
         instance = this;
+        if (Session.instance.isKing)
+        {
+            internalID = 1;
+        }
+        else
+        {
+            internalID = 2;
+        }
     }
 
     void Update()
     {
-        // client logic
-        if (!Session.instance.isKing && Session.instance.canPlay)
+        if (Session.instance.canPlay)
         {
             for (int i = (int)KeyCode.Alpha1; i <= (int)KeyCode.Alpha9; i++)
             {
@@ -33,45 +41,14 @@ public class Game : MonoBehaviour
                     {
                         //Check the number;
                         var packet = new NetData() { dataType = NetType.ClientMove, data = new byte[] { (byte)realNumber } };
+                        if (Session.instance.isKing) { packet.dataType = NetType.HostMove; }
                         Session.instance.sending.Add(packet);
-                        Instantiate(player2Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
-                        int updatedRowHeight = UpdateField((int)realNumber, 2);
 
-                        if (CheckForWin(updatedRowHeight, (int)realNumber, 2))
-                        {
-                            var packetWin = new NetData() { dataType = NetType.YouLose };
-                            Session.instance.sending.Add(packetWin);
-                            YouWin();
-                        }
-                    }
-                }
-            }
-        }
-        // host logic
-        else
-        {
-            if (!Session.instance.canPlay)
-            {
-                return;
-            }
-            for (int i = (int)KeyCode.Alpha1; i <= (int)KeyCode.Alpha9; i++)
-            {
-                var keycode = (KeyCode)i;
-                if (Input.GetKeyDown(keycode))
-                {
-                    // -1 is added since array and positions start at 0
-                    var realNumber = i - KeyCode.Alpha0 - 1;
-
-                    if (TryMove((int)realNumber))
-                    {
-                        //Check the number;
-                        var packet = new NetData() { dataType = NetType.HostMove, data = new byte[] { (byte)realNumber } };
-                        Session.instance.sending.Add(packet);
-                        Instantiate(player1Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity);
-
-                        int updatedRowHeight = UpdateField((int)realNumber, 1);
-
-                        if (CheckForWin(updatedRowHeight, (int)realNumber, 1))
+                        if (Session.instance.isKing) { Instantiate(player1Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity); }
+                        else                         { Instantiate(player2Ball, new Vector3((int)realNumber, 10f, 0f), Quaternion.identity); }
+                       
+                        int updatedRowHeight = UpdateField((int)realNumber, internalID);
+                        if (CheckForWin(updatedRowHeight, (int)realNumber, internalID))
                         {
                             var packetWin = new NetData() { dataType = NetType.YouLose };
                             Session.instance.sending.Add(packetWin);
